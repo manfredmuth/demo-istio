@@ -1,0 +1,7 @@
+apiVersion: maistra.io/v1
+kind: ServiceMeshMemberRoll
+metadata:
+  name: stormshift-private
+spec:
+  members:
+  - gm-stormshift
