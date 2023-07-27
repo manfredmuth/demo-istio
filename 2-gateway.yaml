@@ -1,0 +1,36 @@
+apiVersion: networking.istio.io/v1alpha3
+kind: Gateway
+metadata:
+  name: productpage-with-service-mesh
+  namespace: istio-system
+spec:
+  selector:
+    istio: ingressgateway # use istio default controller
+  servers:
+  - hosts:
+    - productpage-with-service-mesh.apps.ocp.ocp-gm.de
+    port:
+      number: 443
+      name: https
+      protocol: HTTPS
+    tls:
+      mode: SIMPLE
+      credentialName: cert-utils-productpage-certificate
+---
+apiVersion: networking.istio.io/v1beta1
+kind: VirtualService
+metadata:
+  name: productpage-with-service-mesh
+  namespace: istio-system
+spec:
+  gateways:
+    - istio-system/productpage-with-service-mesh
+  hosts:
+    - "productpage-with-service-mesh.apps.ocp.ocp-gm.de"
+  http:
+    - name: productpage
+      route:
+        - destination:
+            host: productpage
+            port:
+              number: 8080
