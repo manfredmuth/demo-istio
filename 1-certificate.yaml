@@ -2,7 +2,7 @@ apiVersion: cert-manager.io/v1
 kind: Certificate
 metadata:
   name: cert-utils-productpage-certificate
-  namespace: istio-system
+  namespace: gm-servicemeshinterconnect
 spec:
   secretName: cert-utils-productpage-certificate
   commonName: productpage-with-service-mesh.apps.ocp.ocp-gm.de
