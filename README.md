@@ -16,13 +16,13 @@ https://github.com/skupperproject/skupper-example-bookinfo
 oc new-project gm-stormshift
 oc new-project gm-servicemeshinterconnect
 oc new-project service-mesh
-oc create -n service-mesh -f servicemeshmemberroll-default.yaml
+oc create -n service-mesh -f config/servicemeshmemberroll-default.yaml
 ```
 
 Create a fully working bookinfo deployment in the stormshift namespace according to the official documentation
 
 ```
-oc apply -n gm-stormshift -f https://raw.githubusercontent.com/Maistra/istio/maistra-2.4/samples/bookinfo/networking/bookinfo-gateway.yaml
+oc apply -n gm-stormshift -f https://raw.githubusercontent.com/Maistra/istio/maistra-2.4/samples/bookinfo/platform/kube/bookinfo.yaml
 ```
 
 Verify the service mesh installation
