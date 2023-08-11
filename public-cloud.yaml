@@ -14,7 +14,13 @@ spec:
     name: http
   selector:
     app: productpage
-  type: LoadBalancer
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: bookinfo-productpage
+  labels:
+    account: productpage
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -28,20 +34,39 @@ spec:
   selector:
     matchLabels:
       app: productpage
+      version: v1
   template:
     metadata:
       annotations:
-        sidecar.istio.io/inject: 'true'
+        sidecar.istio.io/inject: "true"
       labels:
         app: productpage
         version: v1
     spec:
+      securityContext:
+        # Do not use SeccompProfile if your project must work on
+        # old k8s versions < 1.19 and Openshift < 4.11
+        seccompProfile:
+          type: RuntimeDefault
+        runAsNonRoot: true
+      serviceAccountName: bookinfo-productpage
       containers:
       - name: productpage
-        image: docker.io/maistra/examples-bookinfo-productpage-v1:0.12.0
+        image: quay.io/maistra/examples-bookinfo-productpage-v1:2.3.0
         imagePullPolicy: IfNotPresent
         ports:
         - containerPort: 9080
+        volumeMounts:
+        - name: tmp
+          mountPath: /tmp
+        securityContext:
+          allowPrivilegeEscalation: false
+          capabilities:
+            drop:
+            - ALL
+      volumes:
+      - name: tmp
+        emptyDir: {}
 ---
 ##################################################################################################
 # Ratings service
@@ -60,6 +85,13 @@ spec:
   selector:
     app: ratings
 ---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: bookinfo-ratings
+  labels:
+    account: ratings
+---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -72,18 +104,31 @@ spec:
   selector:
     matchLabels:
       app: ratings
+      version: v1
   template:
     metadata:
       annotations:
-        sidecar.istio.io/inject: 'true'
+        sidecar.istio.io/inject: "true"
       labels:
         app: ratings
         version: v1
     spec:
+      securityContext:
+        # Do not use SeccompProfile if your project must work on
+        # old k8s versions < 1.19 and Openshift < 4.11
+        seccompProfile:
+          type: RuntimeDefault
+        runAsNonRoot: true
+      serviceAccountName: bookinfo-ratings
       containers:
       - name: ratings
-        image: docker.io/maistra/examples-bookinfo-ratings-v1:0.12.0
+        image: quay.io/maistra/examples-bookinfo-ratings-v1:2.3.0
         imagePullPolicy: IfNotPresent
         ports:
         - containerPort: 9080
+        securityContext:
+          allowPrivilegeEscalation: false
+          capabilities:
+            drop:
+            - ALL
 ---
