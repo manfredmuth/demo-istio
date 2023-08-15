@@ -1,0 +1,44 @@
+apiVersion: networking.istio.io/v1beta1
+kind: VirtualService
+metadata:
+  name: details
+  namespace: gm-servicemeshinterconnect
+spec:
+  hosts:
+    - "details"
+  http:
+    - route:
+      - destination:
+          host: details
+          port:
+            number: 9080
+---
+apiVersion: networking.istio.io/v1beta1
+kind: VirtualService
+metadata:
+  name: reviews
+  namespace: gm-servicemeshinterconnect
+spec:
+  hosts:
+    - "reviews"
+  http:
+    - route:
+      - destination:
+          host: reviews
+          port:
+            number: 9080
+---
+apiVersion: networking.istio.io/v1beta1
+kind: VirtualService
+metadata:
+  name: ratings
+  namespace: gm-servicemeshinterconnect
+spec:
+  hosts:
+    - "ratings"
+  http:
+    - route:
+      - destination:
+          host: ratings
+          port:
+            number: 9080
