@@ -1,0 +1,90 @@
+Release "instance-green-mesh" does not exist. Installing it now.
+NAME: instance-green-mesh
+LAST DEPLOYED: Mon Aug 21 13:47:40 2023
+NAMESPACE: gm-servicemeshinterconnect
+STATUS: pending-install
+REVISION: 1
+TEST SUITE: None
+HOOKS:
+MANIFEST:
+---
+# Source: service-mesh-federation/templates/1-instance/01-smcp.yaml
+apiVersion: maistra.io/v2
+kind: ServiceMeshControlPlane
+metadata:
+  name: green-mesh-2
+  namespace: green-mesh-system-2
+spec:
+  cluster:
+    name: green-cluster-2
+  version: v2.4
+  runtime:
+    defaults:
+      container:
+        imagePullPolicy: Always
+  gateways:
+    additionalEgress:
+      egress-red-mesh:
+        enabled: true
+        requestedNetworkView:
+        - red-mesh
+        routerMode: sni-dnat
+        service:
+          metadata:
+            labels:
+              federation.maistra.io/egress-for: egress-red-mesh
+          ports:
+          - port: 15443
+            name: tls
+          - port: 8188
+            name: http-discovery  #note HTTP here
+    additionalIngress:
+      ingress-red-mesh:
+        enabled: true
+        routerMode: sni-dnat
+        service:
+          type: LoadBalancer
+          metadata:
+            labels:
+              federation.maistra.io/ingress-for: ingress-red-mesh
+          ports:
+          - port: 15443
+            name: tls
+          - port: 8188
+            name: https-discovery  #note HTTPS here      
+  security:
+    trust:
+      domain: green-mesh-2.local
+---
+# Source: service-mesh-federation/templates/1-instance/00-smmr.yaml
+apiVersion: maistra.io/v1
+kind: ServiceMeshMemberRoll
+metadata:
+  name: default
+  namespace: green-mesh-system-2 
+spec:
+  members:
+  - gm-public-2
+---
+# Source: service-mesh-federation/templates/1-instance/01-servicemeshpeer.yaml
+kind: ServiceMeshPeer
+apiVersion: federation.maistra.io/v1
+metadata:
+  name: red-mesh
+  namespace: green-mesh-system-2
+spec:
+  remote:
+    addresses:
+    - c271fa80-us-east.lb.appdomain.cloud
+  gateways:
+    ingress:
+      name: ingress-red-mesh
+    egress:
+      name: egress-red-mesh
+  security:
+    trustDomain: red-mesh.local
+    clientID: red-mesh.local/ns/red-mesh-system/sa/egress-green-mesh-2-service-account
+    certificateChain:
+      kind: ConfigMap
+      name: red-mesh-ca-root-cert
+

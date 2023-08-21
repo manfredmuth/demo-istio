@@ -1,0 +1,39 @@
+{{- if contains .Values.phase "instance" }}
+{{- if not .Values.disableLetsencrypt }}
+apiVersion: v1
+items:
+- apiVersion: cert-manager.io/v1
+  kind: ClusterIssuer
+  metadata:
+    name: letsencrypt-prod
+  spec:
+    acme:
+      email: {{ coalesce .Values.clusterIssuerEmail "modzelewski.georg@gmail.com" }}
+      preferredChain: ""
+      privateKeySecretRef:
+        name: issuer-letsencrypt
+      server: https://acme-v02.api.letsencrypt.org/directory
+      solvers:
+      - http01:
+          ingress:
+            class: openshift-default
+- apiVersion: cert-manager.io/v1
+  kind: ClusterIssuer
+  metadata:
+    name: letsencrypt-staging
+  spec:
+    acme:
+      email: {{ coalesce .Values.clusterIssuerEmail "modzelewski.georg@gmail.com" }}
+      preferredChain: ""
+      privateKeySecretRef:
+        name: issuer-letsencrypt-staging
+      server: https://acme-staging-v02.api.letsencrypt.org/directory
+      solvers:
+      - http01:
+          ingress:
+            class: openshift-default
+kind: List
+metadata:
+  resourceVersion: ""
+{{- end }}
+{{- end }}
