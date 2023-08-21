@@ -1,0 +1,90 @@
+Release "prep-green-mesh" does not exist. Installing it now.
+NAME: prep-green-mesh
+LAST DEPLOYED: Mon Aug 21 15:20:10 2023
+NAMESPACE: default
+STATUS: pending-install
+REVISION: 1
+TEST SUITE: None
+HOOKS:
+MANIFEST:
+---
+# Source: service-mesh-federation/templates/0-prep/subscription-cert-manager.yaml
+apiVersion: operators.coreos.com/v1alpha1
+kind: Subscription
+metadata:
+  labels:
+    operators.coreos.com/cert-manager.openshift-operators: ""
+  name: cert-manager
+  namespace: openshift-operators
+spec:
+  channel: stable
+  installPlanApproval: Automatic
+  name: cert-manager
+  source: community-operators
+  sourceNamespace: openshift-marketplace
+  startingCSV: cert-manager.v1.12.2
+---
+# Source: service-mesh-federation/templates/0-prep/subscription-cert-utils-operator.yaml
+apiVersion: operators.coreos.com/v1alpha1
+kind: Subscription
+metadata:
+  labels:
+    operators.coreos.com/cert-utils-operator.cert-utils-operator: ""
+  name: cert-utils-operator
+  namespace: cert-utils-operator
+spec:
+  channel: alpha
+  installPlanApproval: Automatic
+  name: cert-utils-operator
+  source: community-operators
+  sourceNamespace: openshift-marketplace
+  startingCSV: cert-utils-operator.v1.3.11
+---
+# Source: service-mesh-federation/templates/0-prep/subscription-jaeger.yaml
+apiVersion: operators.coreos.com/v1alpha1
+kind: Subscription
+metadata:
+  labels:
+    operators.coreos.com/jaeger-product.openshift-distributed-tracing: ""
+  name: jaeger-product
+  namespace: openshift-distributed-tracing
+spec:
+  channel: stable
+  installPlanApproval: Automatic
+  name: jaeger-product
+  source: redhat-operators
+  sourceNamespace: openshift-marketplace
+  startingCSV: jaeger-operator.v1.42.0-5-0.1687199951.p
+---
+# Source: service-mesh-federation/templates/0-prep/subscription-kiali-ossm.yaml
+apiVersion: operators.coreos.com/v1alpha1
+kind: Subscription
+metadata:
+  labels:
+    operators.coreos.com/kiali-ossm.openshift-operators: ""
+  name: kiali-ossm
+  namespace: openshift-operators
+spec:
+  channel: stable
+  installPlanApproval: Automatic
+  name: kiali-ossm
+  source: redhat-operators
+  sourceNamespace: openshift-marketplace
+  startingCSV: kiali-operator.v1.65.7
+---
+# Source: service-mesh-federation/templates/0-prep/subscription-servicemeshoperator.yaml
+apiVersion: operators.coreos.com/v1alpha1
+kind: Subscription
+metadata:
+  labels:
+    operators.coreos.com/servicemeshoperator.openshift-operators: ""
+  name: servicemeshoperator
+  namespace: openshift-operators
+spec:
+  channel: stable
+  installPlanApproval: Automatic
+  name: servicemeshoperator
+  source: redhat-operators
+  sourceNamespace: openshift-marketplace
+  startingCSV: servicemeshoperator.v2.4.1
+

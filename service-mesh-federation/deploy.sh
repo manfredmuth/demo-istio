@@ -7,39 +7,86 @@ log() {
   echo "##### $*"
 }
 
-# kubectl config rename-context blue-mesh-system/api-rosa-vhnkn-ot31-p1-openshiftapps-com:6443/cluster-admin blue-mesh
-
+# -------- snippets
+# CURRENT_CONTEXT=$(oc config current-context)
+# log "${CURRENT_CONTEXT}"
+# oc config rename-context "${CURRENT_CONTEXT}" green-mesh
+# oc config rename-context "${CURRENT_CONTEXT}" red-mesh
 
 # -------- Phase 0 ------------
-log "Phase 0 - Prep - Deploying subscriptions"
-oc config use-context green-mesh
-oc get subscriptions.operators.coreos.com -A -o yaml | oc neat > logs-00-subscriptions-greenmesh-before.yaml
-oc get crds -o name > logs-00-crds-greenmesh-before.yaml
-helm upgrade prep-green-mesh . -i --create-namespace --kube-context green-mesh --set phase=prep --dry-run > prep-green.yaml        
-# oc wait --kube-context green-mesh --for condition=Ready -n openshift-operators -l name=istio-operator pod --timeout 300s
-oc get subscriptions.operators.coreos.com -A -o yaml | oc neat > logs-01-subscriptions-greenmesh-after.yaml
-oc get crds -o name > logs-01-crds-greenmesh-after.yaml
+# log "Phase 0 - Prep - Deploying subscriptions" -> kaputt -> mache manuell
+# oc config use-context green-mesh
+# oc get subscriptions.operators.coreos.com -A -o yaml | oc neat > logs-00-subscriptions-greenmesh-before.yaml
+# oc get crds -o name > logs-00-crds-greenmesh-before.yaml
+# oc create namespace cert-utils-operator
+# oc create namespace openshift-distributed-tracing
+# helm upgrade prep-green-mesh . -i --create-namespace --kube-context green-mesh --set phase=prep #--dry-run > logs-00-prep-green.yaml        
+# # oc wait --kube-context green-mesh --for condition=Ready -n openshift-operators -l name=istio-operator pod --timeout 300s
+# oc get subscriptions.operators.coreos.com -A -o yaml | oc neat > logs-01-subscriptions-greenmesh-after.yaml
+# oc get crds -o name > logs-01-crds-greenmesh-after.yaml
+
+# oc config use-context red-mesh
+# oc get subscriptions.operators.coreos.com -A -o yaml | oc neat > logs-00-subscriptions-redmesh-before.yaml
+# oc get crds -o name > logs-00-crds-redmesh-before.yaml
+# helm upgrade prep-red-mesh . -i --create-namespace --kube-context red-mesh --set phase=prep --dry-run > prep-red.yaml        
+# # oc wait --kube-context red-mesh --for condition=Ready -n openshift-operators -l name=istio-operator pod --timeout 300s
+# oc get subscriptions.operators.coreos.com -A -o yaml | oc neat > logs-01-subscriptions-redmesh-after.yaml
+# oc get crds -o name > logs-01-crds-redmesh-after.yaml
+
+# -------- Phase 1.0 ------------
+# log "Phase 1.0 - Instance - Deploying resources and instances for operators"
+# oc config use-context green-mesh
+# helm upgrade instance-green-mesh . -i --kube-context green-mesh --set phase=instance-green-mesh
+# oc wait --for condition=Ready -n green-mesh-system smcp/green-mesh --timeout 300s 
+
+# oc config use-context red-mesh
+# helm upgrade instance-red-mesh . -i --kube-context red-mesh --set phase=instance-red-mesh
+# oc wait --for condition=Ready -n red-mesh-system smcp/red-mesh --timeout 300s 
+
+# -------- Phase 1.1 ------------
+# log "Phase 1.1 - Certificates - Deploying root certificates in each namespace"
+# oc config use-context green-mesh
+# oc get configmap istio-ca-root-cert -o jsonpath='{.data.root-cert\.pem}' -n green-mesh-system > 11-green-mesh-ca-root-cert.pem
 
 oc config use-context red-mesh
-oc get subscriptions.operators.coreos.com -A -o yaml | oc neat > logs-00-subscriptions-redmesh-before.yaml
-oc get crds -o name > logs-00-crds-redmesh-before.yaml
-helm upgrade prep-red-mesh . -i --create-namespace --kube-context red-mesh --set phase=prep --dry-run > prep-red.yaml        
-# oc wait --kube-context red-mesh --for condition=Ready -n openshift-operators -l name=istio-operator pod --timeout 300s
-oc get subscriptions.operators.coreos.com -A -o yaml | oc neat > logs-01-subscriptions-redmesh-after.yaml
-oc get crds -o name > logs-01-crds-redmesh-after.yaml
+oc get configmap istio-ca-root-cert -o jsonpath='{.data.root-cert\.pem}' -n red-mesh-system > 11-red-mesh-ca-root-cert.pem
+oc delete configmap green-mesh-ca-root-cert -n red-mesh-system
+oc create configmap green-mesh-ca-root-cert --from-file=root-cert.pem=11-green-mesh-ca-root-cert.pem -n red-mesh-system
 
-# -------- Phase 1 ------------
-# log "Phase 1 - Instance - Deploying resources and instances for operators"
-# helm upgrade instance-green-mesh . -i --create-namespace --kube-context green-mesh --set phase=instance-green-mesh --dry-run > instance-green.yaml
-# oc wait --kube-context green-mesh --for condition=Ready -n green-mesh-system smcp/green-mesh --timeout 300s 
-# oc get configmap istio-ca-root-cert -o jsonpath='{.data.root-cert\.pem}' -n green-mesh-system > 10-green-mesh-ca-root-cert.pem
+oc config use-context green-mesh
+oc delete configmap red-mesh-ca-root-cert -n green-mesh-system
+oc create configmap red-mesh-ca-root-cert --from-file=root-cert.pem=11-red-mesh-ca-root-cert.pem -n green-mesh-system
 
-# helm upgrade instance-red-mesh . -i --create-namespace --kube-context red-mesh --set phase=instance-red-mesh --dry-run > instance-red.yaml        
-# oc wait --kube-context red-mesh --for condition=Ready -n red-mesh-system smcp/red-mesh --timeout 300s 
+# -------- Phase 1.2 ------------
+log "Phase 1.2 - Addresses - Set correct addresses for smcp"
+# // TODO: get external address and set it in values.yaml
+# AWS: Hostname is enough
+# Azure: use the IP and add an annotation
+# https://docs.openshift.com/container-platform/4.13/service_mesh/v2x/ossm-federation.html#exposing-the-federation-ingress-on-amazon-web-services-aws
+oc config use-context green-mesh
+ADRESS_FOR_GREEN_MESH=$(oc -n green-mesh-system get svc ingress-red-mesh -o json | jq ".status.loadBalancer.ingress[0].hostname")
+if [ $ADRESS_FOR_GREEN_MESH = "null" ]; then
+  ADRESS_FOR_GREEN_MESH=$(oc -n green-mesh-system get svc ingress-red-mesh -o json | jq ".status.loadBalancer.ingress[0].ip")
+fi
+sed -i "_greenmeshbackup" "s/\"enterAddressForGreenmesh\"/$ADRESS_FOR_GREEN_MESH/g" values.yaml
 
-# "Deploying helm charts"
-# helm --upgrade --create-namespace --kube-context red-mesh
-# helm --upgrade --create-namespace --kube-context green-mesh
+oc config use-context red-mesh
+ADRESS_FOR_RED_MESH=$(oc -n red-mesh-system get svc ingress-green-mesh -o json | jq ".status.loadBalancer.ingress[0].hostname")
+if [ $ADRESS_FOR_RED_MESH = "null" ]; then
+  ADRESS_FOR_RED_MESH=$(oc -n red-mesh-system get svc ingress-green-mesh -o json | jq ".status.loadBalancer.ingress[0].ip")
+  oc -n red-mesh-system annotate service ingress-green-mesh service.beta.kubernetes.io/aws-load-balancer-type=nlb
+fi
+sed -i "_redmeshbackup" "s/\"enterAddressForRedmesh\"/$ADRESS_FOR_RED_MESH/g" values.yaml
+
+# -------- Phase 1.3 ------------
+oc config use-context green-mesh
+helm upgrade federation-green-mesh . -i --set phase=federation-green-mesh
+# oc wait --for condition=Ready -n green-mesh-system servicemeshpeer/red-mesh --timeout 300s 
+
+oc config use-context red-mesh
+helm upgrade federation-red-mesh . -i --set phase=federation-red-mesh
+# oc wait --for condition=Ready -n red-mesh-system servicemeshpeer/green-mesh --timeout 300s 
+
 
 # log "Waiting for prod-mesh installation to complete"
 # oc wait --for condition=Ready -n prod-mesh smmr/default --timeout 300s

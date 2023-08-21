@@ -35,6 +35,8 @@ spec:
         service:
           type: LoadBalancer
           metadata:
+            annotations:
+              service.beta.kubernetes.io/aws-load-balancer-type: nlb
             labels:
               federation.maistra.io/ingress-for: ingress-{{ include "app.othermeshname" . }}
           ports:

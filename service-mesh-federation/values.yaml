@@ -1,17 +1,17 @@
-phase: instance-green-mesh # green-mesh | red-mesh | instance-green-mesh | instance-red-mesh | prep
+phase: federation # green-mesh | red-mesh | federation-green-mesh | federation-red-mesh | instance-green-mesh | instance-red-mesh | prep
 
-nameGreenmesh: green-mesh-2
-nameClusterGreenmesh: green-cluster-2
-namespaceGreenmeshSystem: green-mesh-system-2
+nameGreenmesh: green-mesh
+nameClusterGreenmesh: green-cluster
+namespaceGreenmeshSystem: green-mesh-system
 namespaceGreenmesh: gm-greenmesh-public
-addressGreenmesh: "public-mesh-ingress-istio-system.rhpds-433dee0b4ccaac7b6341df52e43bcc94-0000.us-east.containers.appdomain.cloud"
-addressGreenmeshDeployment: "productpage-with-service-mesh.apps.ocp.ocp-gm.de"
+addressGreenmesh: "af00f888dcfa649e29751eddca469e08-521566250.us-east-2.elb.amazonaws.com"
+addressGreenmeshDeployment: "productpage-with-service-mesh.apps.xyhm32jt.eastus2.aroapp.io"
 
 nameRedmesh: red-mesh
 nameClusterRedmesh: red-cluster
 namespaceRedmeshSystem: red-mesh-system
-namespaceRedmesh: gm-private
-addressRedmesh: "c271fa80-us-east.lb.appdomain.cloud"
+namespaceRedmesh: gm-redmesh-private
+addressRedmesh: "20.122.233.230"
 
 clusterIssuerEmail: 'modzelewski.georg@gmail.com'
 

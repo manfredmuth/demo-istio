@@ -1,0 +1,319 @@
+apiVersion: v1
+items:
+- apiVersion: operators.coreos.com/v1alpha1
+  kind: Subscription
+  metadata:
+    annotations:
+      meta.helm.sh/release-name: prep-green-mesh
+      meta.helm.sh/release-namespace: default
+    labels:
+      app.kubernetes.io/managed-by: Helm
+      operators.coreos.com/cert-utils-operator.cert-utils-operator: ""
+    name: cert-utils-operator
+    namespace: cert-utils-operator
+  spec:
+    channel: alpha
+    installPlanApproval: Automatic
+    name: cert-utils-operator
+    source: community-operators
+    sourceNamespace: openshift-marketplace
+    startingCSV: cert-utils-operator.v1.3.11
+- apiVersion: operators.coreos.com/v1alpha1
+  kind: Subscription
+  metadata:
+    labels:
+      hive.openshift.io/managed: "true"
+      operators.coreos.com/addon-operator.openshift-addon-operator: ""
+    name: addon-operator
+    namespace: openshift-addon-operator
+  spec:
+    channel: stable
+    name: addon-operator
+    source: addon-operator-catalog
+    sourceNamespace: openshift-addon-operator
+- apiVersion: operators.coreos.com/v1alpha1
+  kind: Subscription
+  metadata:
+    labels:
+      hive.openshift.io/managed: "true"
+      operators.coreos.com/cloud-ingress-operator.openshift-cloud-ingress-operator: ""
+    name: cloud-ingress-operator
+    namespace: openshift-cloud-ingress-operator
+  spec:
+    channel: production
+    name: cloud-ingress-operator
+    source: cloud-ingress-operator-registry
+    sourceNamespace: openshift-cloud-ingress-operator
+- apiVersion: operators.coreos.com/v1alpha1
+  kind: Subscription
+  metadata:
+    labels:
+      hive.openshift.io/managed: "true"
+      operators.coreos.com/custom-domains-operator.openshift-custom-domains-operator: ""
+    name: custom-domains-operator
+    namespace: openshift-custom-domains-operator
+  spec:
+    channel: production
+    name: custom-domains-operator
+    source: custom-domains-operator-registry
+    sourceNamespace: openshift-custom-domains-operator
+- apiVersion: operators.coreos.com/v1alpha1
+  kind: Subscription
+  metadata:
+    labels:
+      hive.openshift.io/managed: "true"
+      operators.coreos.com/deployment-validation-operator.openshift-deployment-validation: ""
+    name: deployment-validation-operator
+    namespace: openshift-deployment-validation-operator
+  spec:
+    channel: alpha
+    config:
+      env:
+      - name: NAMESPACE_IGNORE_PATTERN
+        value: ^(openshift.*|kube-.*|default|dedicated-admin|redhat-.*|acm|addon-dba-operator|codeready-.*|prow)$
+    name: deployment-validation-operator
+    source: deployment-validation-operator-catalog
+    sourceNamespace: openshift-deployment-validation-operator
+- apiVersion: operators.coreos.com/v1alpha1
+  kind: Subscription
+  metadata:
+    annotations:
+      meta.helm.sh/release-name: prep-green-mesh
+      meta.helm.sh/release-namespace: default
+    labels:
+      app.kubernetes.io/managed-by: Helm
+      operators.coreos.com/jaeger-product.openshift-distributed-tracing: ""
+    name: jaeger-product
+    namespace: openshift-distributed-tracing
+  spec:
+    channel: stable
+    installPlanApproval: Automatic
+    name: jaeger-product
+    source: redhat-operators
+    sourceNamespace: openshift-marketplace
+    startingCSV: jaeger-operator.v1.42.0-5-0.1687199951.p
+- apiVersion: operators.coreos.com/v1alpha1
+  kind: Subscription
+  metadata:
+    labels:
+      hive.openshift.io/managed: "true"
+      operators.coreos.com/managed-node-metadata-operator.openshift-managed-node-metadata: ""
+    name: managed-node-metadata-operator
+    namespace: openshift-managed-node-metadata-operator
+  spec:
+    channel: production
+    name: managed-node-metadata-operator
+    source: managed-node-metadata-operator-registry
+    sourceNamespace: openshift-managed-node-metadata-operator
+- apiVersion: operators.coreos.com/v1alpha1
+  kind: Subscription
+  metadata:
+    labels:
+      hive.openshift.io/managed: "true"
+      operators.coreos.com/managed-upgrade-operator.openshift-managed-upgrade-operator: ""
+    name: managed-upgrade-operator
+    namespace: openshift-managed-upgrade-operator
+  spec:
+    channel: production
+    name: managed-upgrade-operator
+    source: managed-upgrade-operator-catalog
+    sourceNamespace: openshift-managed-upgrade-operator
+- apiVersion: operators.coreos.com/v1alpha1
+  kind: Subscription
+  metadata:
+    labels:
+      hive.openshift.io/managed: "true"
+      operators.coreos.com/configure-alertmanager-operator.openshift-monitoring: ""
+    name: configure-alertmanager-operator
+    namespace: openshift-monitoring
+  spec:
+    channel: production
+    config:
+      env:
+      - name: FEDRAMP
+        value: "false"
+    name: configure-alertmanager-operator
+    source: configure-alertmanager-operator-registry
+    sourceNamespace: openshift-monitoring
+- apiVersion: operators.coreos.com/v1alpha1
+  kind: Subscription
+  metadata:
+    labels:
+      hive.openshift.io/managed: "true"
+      operators.coreos.com/must-gather-operator.openshift-must-gather-operator: ""
+    name: must-gather-operator
+    namespace: openshift-must-gather-operator
+  spec:
+    channel: production
+    name: must-gather-operator
+    source: must-gather-operator-registry
+    sourceNamespace: openshift-must-gather-operator
+- apiVersion: operators.coreos.com/v1alpha1
+  kind: Subscription
+  metadata:
+    labels:
+      hive.openshift.io/managed: "true"
+      operators.coreos.com/observability-operator.openshift-observability-operator: ""
+    name: observability-operator
+    namespace: openshift-observability-operator
+  spec:
+    channel: stable
+    config:
+      resources:
+        limits:
+          cpu: 200m
+          memory: 1536Mi
+        requests:
+          cpu: 100m
+          memory: 512Mi
+    name: observability-operator
+    source: observability-operator-catalog
+    sourceNamespace: openshift-observability-operator
+- apiVersion: operators.coreos.com/v1alpha1
+  kind: Subscription
+  metadata:
+    labels:
+      hive.openshift.io/managed: "true"
+      operators.coreos.com/ocm-agent-operator.openshift-ocm-agent-operator: ""
+    name: ocm-agent-operator
+    namespace: openshift-ocm-agent-operator
+  spec:
+    channel: production
+    name: ocm-agent-operator
+    source: ocm-agent-operator-registry
+    sourceNamespace: openshift-ocm-agent-operator
+- apiVersion: operators.coreos.com/v1alpha1
+  kind: Subscription
+  metadata:
+    annotations:
+      meta.helm.sh/release-name: prep-green-mesh
+      meta.helm.sh/release-namespace: default
+    labels:
+      app.kubernetes.io/managed-by: Helm
+      operators.coreos.com/cert-manager.openshift-operators: ""
+    name: cert-manager
+    namespace: openshift-operators
+  spec:
+    channel: stable
+    installPlanApproval: Automatic
+    name: cert-manager
+    source: community-operators
+    sourceNamespace: openshift-marketplace
+    startingCSV: cert-manager.v1.12.2
+- apiVersion: operators.coreos.com/v1alpha1
+  kind: Subscription
+  metadata:
+    annotations:
+      meta.helm.sh/release-name: prep-green-mesh
+      meta.helm.sh/release-namespace: default
+    labels:
+      app.kubernetes.io/managed-by: Helm
+      operators.coreos.com/kiali-ossm.openshift-operators: ""
+    name: kiali-ossm
+    namespace: openshift-operators
+  spec:
+    channel: stable
+    installPlanApproval: Automatic
+    name: kiali-ossm
+    source: redhat-operators
+    sourceNamespace: openshift-marketplace
+    startingCSV: kiali-operator.v1.65.7
+- apiVersion: operators.coreos.com/v1alpha1
+  kind: Subscription
+  metadata:
+    annotations:
+      meta.helm.sh/release-name: prep-green-mesh
+      meta.helm.sh/release-namespace: default
+    labels:
+      app.kubernetes.io/managed-by: Helm
+      operators.coreos.com/servicemeshoperator.openshift-operators: ""
+    name: servicemeshoperator
+    namespace: openshift-operators
+  spec:
+    channel: stable
+    installPlanApproval: Automatic
+    name: servicemeshoperator
+    source: redhat-operators
+    sourceNamespace: openshift-marketplace
+    startingCSV: servicemeshoperator.v2.4.1
+- apiVersion: operators.coreos.com/v1alpha1
+  kind: Subscription
+  metadata:
+    labels:
+      hive.openshift.io/managed: "true"
+      operators.coreos.com/osd-metrics-exporter.openshift-osd-metrics: ""
+    name: osd-metrics-exporter
+    namespace: openshift-osd-metrics
+  spec:
+    channel: production
+    name: osd-metrics-exporter
+    source: osd-metrics-exporter-registry
+    sourceNamespace: openshift-osd-metrics
+- apiVersion: operators.coreos.com/v1alpha1
+  kind: Subscription
+  metadata:
+    labels:
+      hive.openshift.io/managed: "true"
+      operators.coreos.com/rbac-permissions-operator.openshift-rbac-permissions: ""
+    name: rbac-permissions-operator
+    namespace: openshift-rbac-permissions
+  spec:
+    channel: production
+    name: rbac-permissions-operator
+    source: rbac-permissions-operator-registry
+    sourceNamespace: openshift-rbac-permissions
+- apiVersion: operators.coreos.com/v1alpha1
+  kind: Subscription
+  metadata:
+    labels:
+      hive.openshift.io/managed: "true"
+      operators.coreos.com/route-monitor-operator.openshift-route-monitor-operator: ""
+    name: route-monitor-operator
+    namespace: openshift-route-monitor-operator
+  spec:
+    channel: production
+    name: route-monitor-operator
+    source: route-monitor-operator-registry
+    sourceNamespace: openshift-route-monitor-operator
+- apiVersion: operators.coreos.com/v1alpha1
+  kind: Subscription
+  metadata:
+    labels:
+      hive.openshift.io/managed: "true"
+      operators.coreos.com/splunk-forwarder-operator.openshift-splunk-forwarder-operator: ""
+    name: openshift-splunk-forwarder-operator
+    namespace: openshift-splunk-forwarder-operator
+  spec:
+    channel: production
+    name: splunk-forwarder-operator
+    source: splunk-forwarder-operator-catalog
+    sourceNamespace: openshift-splunk-forwarder-operator
+- apiVersion: operators.coreos.com/v1alpha1
+  kind: Subscription
+  metadata:
+    labels:
+      hive.openshift.io/managed: "true"
+      operators.coreos.com/managed-velero-operator.openshift-velero: ""
+    name: managed-velero-operator
+    namespace: openshift-velero
+  spec:
+    channel: production
+    config:
+      volumeMounts:
+      - mountPath: /etc/pki/ca-trust/extracted/pem
+        name: trusted-ca-bundle
+        readOnly: true
+      volumes:
+      - configMap:
+          defaultMode: 420
+          items:
+          - key: ca-bundle.crt
+            path: tls-ca-bundle.pem
+          name: trusted-ca-bundle
+        name: trusted-ca-bundle
+    name: managed-velero-operator
+    source: managed-velero-operator-registry
+    sourceNamespace: openshift-velero
+kind: List
+metadata:
+  resourceVersion: ""

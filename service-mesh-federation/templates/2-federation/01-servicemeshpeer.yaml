@@ -1,4 +1,4 @@
-{{- if or (eq .Values.phase "instance-green-mesh") (eq .Values.phase "instance-red-mesh") }}
+{{- if contains "federation" .Values.phase }}
 kind: ServiceMeshPeer
 apiVersion: federation.maistra.io/v1
 metadata:
