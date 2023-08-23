@@ -89,3 +89,6 @@ oc get configmap istio-ca-root-cert -o jsonpath='{.data.root-cert\.pem}' -n gree
 
 -> switch context to red-mesh
 oc create configmap green-mesh-ca-root-cert --from-file=root-cert.pem=03-green-mesh-ca-root-cert.pem -n red-mesh-system
+
+
+az network nsg rule create --nsg-name default-nsg --priority 100 --name georg --resource-group openenv-wjd4x --direction Outbound --destination-port-ranges 30000-31000 --access Allow

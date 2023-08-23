@@ -11,7 +11,7 @@ log() {
 # CURRENT_CONTEXT=$(oc config current-context)
 # log "${CURRENT_CONTEXT}"
 # oc config rename-context "${CURRENT_CONTEXT}" green-mesh
-# oc config rename-context "${CURRENT_CONTEXT}" red-mesh
+# oc config rename-context "$(oc config current-context)" red-mesh     
 
 # -------- Phase 0 ------------
 # log "Phase 0 - Prep - Deploying subscriptions" -> kaputt -> mache manuell
@@ -33,60 +33,99 @@ log() {
 # oc get subscriptions.operators.coreos.com -A -o yaml | oc neat > logs-01-subscriptions-redmesh-after.yaml
 # oc get crds -o name > logs-01-crds-redmesh-after.yaml
 
+# -------- Phase 0.1 ------------
+# log "Phase 0.1 - Prep - create namespaces manually"
+# oc config use-context red-mesh
+# oc new-project red-mesh-system 
+# oc new-project gm-redmesh-private
+
 # -------- Phase 1.0 ------------
 # log "Phase 1.0 - Instance - Deploying resources and instances for operators"
 # oc config use-context green-mesh
 # helm upgrade instance-green-mesh . -i --kube-context green-mesh --set phase=instance-green-mesh
 # oc wait --for condition=Ready -n green-mesh-system smcp/green-mesh --timeout 300s 
 
-# oc config use-context red-mesh
-# helm upgrade instance-red-mesh . -i --kube-context red-mesh --set phase=instance-red-mesh
+oc config use-context red-mesh
+helm upgrade instance-red-mesh . -i --kube-context red-mesh --set phase=instance-red-mesh
 # oc wait --for condition=Ready -n red-mesh-system smcp/red-mesh --timeout 300s 
 
+oc config use-context blue-mesh
+helm upgrade instance-blue-mesh . -i --kube-context blue-mesh --set phase=instance-blue-mesh
+# oc wait --for condition=Ready -n blue-mesh-system smcp/blue-mesh --timeout 300s 
+
 # -------- Phase 1.1 ------------
-# log "Phase 1.1 - Certificates - Deploying root certificates in each namespace"
+# log "Phase 1.1 - Certificates - Fetching root certificates in each namespace"
 # oc config use-context green-mesh
 # oc get configmap istio-ca-root-cert -o jsonpath='{.data.root-cert\.pem}' -n green-mesh-system > 11-green-mesh-ca-root-cert.pem
 
-oc config use-context red-mesh
-oc get configmap istio-ca-root-cert -o jsonpath='{.data.root-cert\.pem}' -n red-mesh-system > 11-red-mesh-ca-root-cert.pem
-oc delete configmap green-mesh-ca-root-cert -n red-mesh-system
-oc create configmap green-mesh-ca-root-cert --from-file=root-cert.pem=11-green-mesh-ca-root-cert.pem -n red-mesh-system
+# oc config use-context red-mesh
+# oc get configmap istio-ca-root-cert -o jsonpath='{.data.root-cert\.pem}' -n red-mesh-system > 11-red-mesh-ca-root-cert.pem
 
-oc config use-context green-mesh
-oc delete configmap red-mesh-ca-root-cert -n green-mesh-system
-oc create configmap red-mesh-ca-root-cert --from-file=root-cert.pem=11-red-mesh-ca-root-cert.pem -n green-mesh-system
+# oc config use-context blue-mesh
+# oc get configmap istio-ca-root-cert -o jsonpath='{.data.root-cert\.pem}' -n blue-mesh-system > 11-blue-mesh-ca-root-cert.pem
 
 # -------- Phase 1.2 ------------
-log "Phase 1.2 - Addresses - Set correct addresses for smcp"
+# log "Phase 1.2 - Certificates - Deploying root certificates in each namespace"
+# oc config use-context green-mesh
+# oc delete configmap red-mesh-ca-root-cert -n green-mesh-system
+# oc create configmap red-mesh-ca-root-cert --from-file=root-cert.pem=11-red-mesh-ca-root-cert.pem -n green-mesh-system
+
+# oc config use-context red-mesh
+# oc delete configmap green-mesh-ca-root-cert -n red-mesh-system
+# oc create configmap green-mesh-ca-root-cert --from-file=root-cert.pem=11-green-mesh-ca-root-cert.pem -n red-mesh-system
+# # oc delete configmap blue-mesh-ca-root-cert -n red-mesh-system
+# oc create configmap blue-mesh-ca-root-cert --from-file=root-cert.pem=11-blue-mesh-ca-root-cert.pem -n red-mesh-system
+
+# oc config use-context blue-mesh
+# # oc delete configmap red-mesh-ca-root-cert -n blue-mesh-system
+# oc create configmap red-mesh-ca-root-cert --from-file=root-cert.pem=11-red-mesh-ca-root-cert.pem -n blue-mesh-system
+
+# -------- Phase 2.0 ------------
+log "Phase 2.0 - Addresses - Fetch addresses for service mesh peer"
 # // TODO: get external address and set it in values.yaml
 # AWS: Hostname is enough
 # Azure: use the IP and add an annotation
 # https://docs.openshift.com/container-platform/4.13/service_mesh/v2x/ossm-federation.html#exposing-the-federation-ingress-on-amazon-web-services-aws
-oc config use-context green-mesh
-ADRESS_FOR_GREEN_MESH=$(oc -n green-mesh-system get svc ingress-red-mesh -o json | jq ".status.loadBalancer.ingress[0].hostname")
-if [ $ADRESS_FOR_GREEN_MESH = "null" ]; then
-  ADRESS_FOR_GREEN_MESH=$(oc -n green-mesh-system get svc ingress-red-mesh -o json | jq ".status.loadBalancer.ingress[0].ip")
-fi
-sed -i "_greenmeshbackup" "s/\"enterAddressForGreenmesh\"/$ADRESS_FOR_GREEN_MESH/g" values.yaml
 
-oc config use-context red-mesh
-ADRESS_FOR_RED_MESH=$(oc -n red-mesh-system get svc ingress-green-mesh -o json | jq ".status.loadBalancer.ingress[0].hostname")
-if [ $ADRESS_FOR_RED_MESH = "null" ]; then
-  ADRESS_FOR_RED_MESH=$(oc -n red-mesh-system get svc ingress-green-mesh -o json | jq ".status.loadBalancer.ingress[0].ip")
-  oc -n red-mesh-system annotate service ingress-green-mesh service.beta.kubernetes.io/aws-load-balancer-type=nlb
-fi
-sed -i "_redmeshbackup" "s/\"enterAddressForRedmesh\"/$ADRESS_FOR_RED_MESH/g" values.yaml
+# oc config use-context green-mesh
+# ADRESS_FOR_GREEN_MESH=$(oc -n green-mesh-system get svc ingress-red-mesh -o json | jq ".status.loadBalancer.ingress[0].hostname")
+# if [ $ADRESS_FOR_GREEN_MESH = "null" ]; then
+#   ADRESS_FOR_GREEN_MESH=$(oc -n green-mesh-system get svc ingress-red-mesh -o json | jq ".status.loadBalancer.ingress[0].ip")
+# fi
+# sed -i "_greenmeshbackup" "s/\"enterAddressForGreenmesh\"/$ADRESS_FOR_GREEN_MESH/g" values.yaml
 
-# -------- Phase 1.3 ------------
-oc config use-context green-mesh
-helm upgrade federation-green-mesh . -i --set phase=federation-green-mesh
+# oc config use-context red-mesh
+# ADRESS_FOR_RED_MESH=$(oc -n red-mesh-system get svc ingress-green-mesh -o json | jq ".status.loadBalancer.ingress[0].hostname")
+# if [ $ADRESS_FOR_RED_MESH = "null" ]; then
+#   ADRESS_FOR_RED_MESH=$(oc -n red-mesh-system get svc ingress-green-mesh -o json | jq ".status.loadBalancer.ingress[0].ip")
+#   oc -n red-mesh-system annotate service ingress-green-mesh service.beta.kubernetes.io/aws-load-balancer-type=nlb
+# fi
+# sed -i "_redmeshbackup" "s/\"enterAddressForRedmesh\"/$ADRESS_FOR_RED_MESH/g" values.yaml
+
+# oc config use-context blue-mesh
+# ADRESS_FOR_BLUE_MESH=$(oc -n blue-mesh-system get svc ingress-red-mesh -o json | jq ".status.loadBalancer.ingress[0].hostname")
+# if [ $ADRESS_FOR_BLUE_MESH = "null" ]; then
+#   ADRESS_FOR_BLUE_MESH=$(oc -n blue-mesh-system get svc ingress-red-mesh -o json | jq ".status.loadBalancer.ingress[0].ip")
+#   oc -n blue-mesh-system annotate service ingress-red-mesh service.beta.kubernetes.io/aws-load-balancer-type=nlb
+# fi
+# sed -i "_bluemeshbackup" "s/\"enterAddressForBluemesh\"/$ADRESS_FOR_BLUE_MESH/g" values.yaml
+
+# -------- Phase 2.1 ------------
+log "Phase 2.1 - Federation - apply service mesh peer"
+# oc config use-context green-mesh
+# helm upgrade federation-green-mesh . -i --set phase=federation-green-mesh
 # oc wait --for condition=Ready -n green-mesh-system servicemeshpeer/red-mesh --timeout 300s 
 
 oc config use-context red-mesh
 helm upgrade federation-red-mesh . -i --set phase=federation-red-mesh
 # oc wait --for condition=Ready -n red-mesh-system servicemeshpeer/green-mesh --timeout 300s 
 
+oc config use-context blue-mesh
+helm upgrade federation-blue-mesh . -i --set phase=federation-blue-mesh
+# oc wait --for condition=Ready -n red-mesh-system servicemeshpeer/green-mesh --timeout 300s 
+
+# -------- Phase 3.0 ------------
+# telnet 144.76.119.48 32768
 
 # log "Waiting for prod-mesh installation to complete"
 # oc wait --for condition=Ready -n prod-mesh smmr/default --timeout 300s

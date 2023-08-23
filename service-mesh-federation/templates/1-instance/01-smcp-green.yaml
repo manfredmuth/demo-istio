@@ -1,4 +1,4 @@
-{{- if or (eq .Values.phase "instance-green-mesh") (eq .Values.phase "instance-red-mesh") }}
+{{- if eq .Values.phase "instance-green-mesh" }}
 apiVersion: maistra.io/v2
 kind: ServiceMeshControlPlane
 metadata:
@@ -33,16 +33,16 @@ spec:
         enabled: true
         routerMode: sni-dnat
         service:
-          type: LoadBalancer
+          type: NodePort
           metadata:
-            annotations:
-              service.beta.kubernetes.io/aws-load-balancer-type: nlb
             labels:
               federation.maistra.io/ingress-for: ingress-{{ include "app.othermeshname" . }}
           ports:
           - port: 15443
+            nodePort: 30001
             name: tls
           - port: 8188
+            nodePort: 30000
             name: https-discovery  #note HTTPS here      
   security:
     trust:

@@ -1,15 +1,15 @@
-{{- if or (eq .Values.phase "instance-green-mesh") (eq .Values.phase "instance-red-mesh") }}
+{{- if or (eq .Values.phase "prep-green-mesh") (eq .Values.phase "prep-red-mesh") }}
 apiVersion: v1
 kind: Namespace
 metadata:
   labels:
     kiali.io/member-of: {{ include "app.currentmeshsystemnamespace" . }}
-    kubernetes.io/metadata.name: {{ include "app.deploymentnamespace" . }}
+    kubernetes.io/metadata.name: {{ include "app.currentmeshsystemnamespace" . }}
     maistra.io/member-of: {{ include "app.currentmeshsystemnamespace" . }}
     pod-security.kubernetes.io/audit: restricted
     pod-security.kubernetes.io/audit-version: v1.24
     pod-security.kubernetes.io/warn: restricted
     pod-security.kubernetes.io/warn-version: v1.24
-  name: {{ include "app.deploymentnamespace" . }}
+  name: {{ include "app.currentmeshsystemnamespace" . }}
 spec: {}
 {{- end }}

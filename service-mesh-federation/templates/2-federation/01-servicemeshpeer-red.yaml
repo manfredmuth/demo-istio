@@ -1,4 +1,4 @@
-{{- if contains "federation" .Values.phase }}
+{{- if eq "federation-red-mesh" .Values.phase }}
 kind: ServiceMeshPeer
 apiVersion: federation.maistra.io/v1
 metadata:
@@ -8,6 +8,8 @@ spec:
   remote:
     addresses:
     - {{ include "app.othermeshaddress" . }}
+    discoveryPort: 30000
+    servicePort: 30001
   gateways:
     ingress:
       name: ingress-{{ include "app.othermeshname" . }}

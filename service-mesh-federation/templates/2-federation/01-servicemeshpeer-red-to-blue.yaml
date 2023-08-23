@@ -1,0 +1,24 @@
+{{- if eq "federation-red-mesh" .Values.phase }}
+kind: ServiceMeshPeer
+apiVersion: federation.maistra.io/v1
+metadata:
+  name: blue-mesh
+  namespace: {{ include "app.currentmeshsystemnamespace" . }}
+spec:
+  remote:
+    addresses:
+    - {{ .Values.addressRedmesh }}
+    discoveryPort: 32423
+    servicePort: 32397
+  gateways:
+    ingress:
+      name: ingress-blue-mesh
+    egress:
+      name: egress-blue-mesh
+  security:
+    trustDomain: blue-mesh.local
+    clientID: blue-mesh.local/ns/blue-mesh-system/sa/egress-{{ include "app.currentmeshname" . }}-service-account
+    certificateChain:
+      kind: ConfigMap
+      name: blue-mesh-ca-root-cert
+{{- end }}

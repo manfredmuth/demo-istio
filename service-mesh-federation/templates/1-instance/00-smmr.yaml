@@ -1,4 +1,4 @@
-{{- if or (eq .Values.phase "instance-green-mesh") (eq .Values.phase "instance-red-mesh") }}
+{{- if or (eq .Values.phase "instance-green-mesh") (eq .Values.phase "instance-red-mesh") (eq .Values.phase "instance-blue-mesh") }}
 apiVersion: maistra.io/v1
 kind: ServiceMeshMemberRoll
 metadata:

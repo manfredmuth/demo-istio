@@ -70,6 +70,8 @@ Create the name of the service account to use
 {{- coalesce .Values.nameGreenmesh "green-mesh" }}
 {{- else if contains "red-mesh" .Values.phase  }}
 {{- coalesce .Values.nameRedmesh "red-mesh" }}
+{{- else if contains "blue-mesh" .Values.phase  }}
+{{- coalesce .Values.nameBluemesh "blue-mesh" }}
 {{- else }}
 {{- printf "none" }}
 {{- end }}
@@ -99,6 +101,8 @@ Create the name of the service account to use
 {{- coalesce .Values.namespaceGreenmeshSystem "green-mesh-system" }}
 {{- else if contains "red-mesh" .Values.phase  }}
 {{- coalesce .Values.namespaceRedmeshSystem "red-mesh-system" }}
+{{- else if contains "blue-mesh" .Values.phase  }}
+{{- coalesce .Values.namespaceBluemeshSystem "blue-mesh-system" }}
 {{- else }}
 {{- printf "none" }}
 {{- end }}
@@ -113,6 +117,8 @@ Create the name of the service account to use
 {{- coalesce .Values.nameClusterGreenmesh "green-cluster" }}
 {{- else if contains "red-mesh" .Values.phase  }}
 {{- coalesce .Values.nameClusterRedmesh "red-cluster" }}
+{{- else if contains "blue-mesh" .Values.phase  }}
+{{- coalesce .Values.nameClusterBluemesh "blue-cluster" }}
 {{- else }}
 {{- printf "none" }}
 {{- end }}
@@ -127,6 +133,8 @@ Create the name of the service account to use
 {{- coalesce .Values.namespaceGreenmesh "gm-servicemeshinterconnect" }}
 {{- else if contains "red-mesh" .Values.phase }}
 {{- coalesce .Values.namespaceRedmesh "gm-servicemeshfederation" }}
+{{- else if contains "blue-mesh" .Values.phase }}
+{{- coalesce .Values.namespaceBluemesh "gm-federation-aws" }}
 {{- else }}
 {{- printf "none" }}
 {{- end }}

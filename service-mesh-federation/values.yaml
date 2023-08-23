@@ -4,14 +4,20 @@ nameGreenmesh: green-mesh
 nameClusterGreenmesh: green-cluster
 namespaceGreenmeshSystem: green-mesh-system
 namespaceGreenmesh: gm-greenmesh-public
-addressGreenmesh: "af00f888dcfa649e29751eddca469e08-521566250.us-east-2.elb.amazonaws.com"
-addressGreenmeshDeployment: "productpage-with-service-mesh.apps.xyhm32jt.eastus2.aroapp.io"
+addressGreenmesh: "144.76.119.48"
+addressGreenmeshDeployment: "productpage-with-service-mesh.apps.ocp.ocp-gm.de"
 
 nameRedmesh: red-mesh
 nameClusterRedmesh: red-cluster
 namespaceRedmeshSystem: red-mesh-system
 namespaceRedmesh: gm-redmesh-private
-addressRedmesh: "20.122.233.230"
+addressRedmesh: "20.62.50.246"
+
+nameBluemesh: blue-mesh
+nameClusterBluemesh: blue-cluster
+namespaceBluemeshSystem: blue-mesh-system
+namespaceBluemesh: gm-federation-aws
+addressBluemesh: "a873b37ce73c14830a9f12c9b2462d1a-503a8f3739b8c7bc.elb.us-east-2.amazonaws.com"
 
 clusterIssuerEmail: 'modzelewski.georg@gmail.com'
 
