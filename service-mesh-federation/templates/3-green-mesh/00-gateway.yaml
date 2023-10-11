@@ -1,0 +1,51 @@
+{{- if eq .Values.phase "green-mesh" }}
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: cert-utils-productpage-certificate
+  namespace: {{ include "app.deploymentnamespace" . }}
+spec:
+  secretName: cert-utils-productpage-certificate
+  commonName: productpage-with-service-mesh
+  dnsNames: 
+    - {{ .Values.addressGreenmeshDeployment }}
+  issuerRef:
+    name: letsencrypt-staging
+    kind: ClusterIssuer
+---
+apiVersion: networking.istio.io/v1alpha3
+kind: Gateway
+metadata:
+  name: productpage-with-service-mesh
+  namespace: {{ include "app.deploymentnamespace" . }}
+spec:
+  selector:
+    istio: ingressgateway # use istio default controller
+  servers:
+  - hosts:
+    - {{ .Values.addressGreenmeshDeployment }}
+    port:
+      number: 443
+      name: https
+      protocol: HTTPS
+    tls:
+      mode: SIMPLE
+      credentialName: cert-utils-productpage-certificate
+---
+apiVersion: networking.istio.io/v1beta1
+kind: VirtualService
+metadata:
+  name: productpage-with-service-mesh
+  namespace: {{ include "app.deploymentnamespace" . }}
+spec:
+  gateways:
+    - productpage-with-service-mesh
+  hosts:
+    - {{ .Values.addressGreenmeshDeployment }}
+  http:
+    - route:
+      - destination:
+          host: productpage
+          port:
+            number: 9080
+{{- end }}

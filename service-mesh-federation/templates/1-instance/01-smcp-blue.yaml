@@ -1,0 +1,50 @@
+{{- if eq .Values.phase "instance-blue-mesh" }}
+apiVersion: maistra.io/v2
+kind: ServiceMeshControlPlane
+metadata:
+  name: {{ include "app.currentmeshname" . }}
+  namespace: {{ include "app.currentmeshsystemnamespace" . }}
+spec:
+  cluster:
+    name: {{ include "app.currentmeshclustername" . }}
+  version: v2.4
+  runtime:
+    defaults:
+      container:
+        imagePullPolicy: Always
+  gateways:
+    additionalEgress:
+      egress-red-mesh:
+        enabled: true
+        requestedNetworkView:
+        - red-mesh
+        routerMode: sni-dnat
+        service:
+          metadata:
+            labels:
+              federation.maistra.io/egress-for: egress-red-mesh
+          ports:
+          - port: 15443
+            name: tls
+          - port: 8188
+            name: http-discovery  #note HTTP here
+    additionalIngress:
+      ingress-red-mesh:
+        enabled: true
+        routerMode: sni-dnat
+        service:
+          type: LoadBalancer
+          metadata:
+            annotations:
+              service.beta.kubernetes.io/aws-load-balancer-type: nlb
+            labels:
+              federation.maistra.io/ingress-for: ingress-red-mesh
+          ports:
+          - port: 15443
+            name: tls
+          - port: 8188
+            name: https-discovery  #note HTTPS here      
+  security:
+    trust:
+      domain: blue-mesh.local
+{{- end }}

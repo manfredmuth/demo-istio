@@ -1,0 +1,75 @@
+{{- if eq .Values.phase "instance-red-mesh" }}
+apiVersion: maistra.io/v2
+kind: ServiceMeshControlPlane
+metadata:
+  name: {{ include "app.currentmeshname" . }}
+  namespace: {{ include "app.currentmeshsystemnamespace" . }}
+spec:
+  cluster:
+    name: {{ include "app.currentmeshclustername" . }}
+  version: v2.4
+  runtime:
+    defaults:
+      container:
+        imagePullPolicy: Always
+  gateways:
+    additionalEgress:
+      egress-{{ include "app.othermeshname" . }}:
+        enabled: true
+        requestedNetworkView:
+        - {{ include "app.othermeshname" . }}
+        routerMode: sni-dnat
+        service:
+          metadata:
+            labels:
+              federation.maistra.io/egress-for: egress-{{ include "app.othermeshname" . }}
+          ports:
+          - port: 15443
+            name: tls
+          - port: 8188
+            name: http-discovery  #note HTTP here
+      egress-blue-mesh:
+        enabled: true
+        requestedNetworkView:
+        - blue-mesh
+        routerMode: sni-dnat
+        service:
+          metadata:
+            labels:
+              federation.maistra.io/egress-for: egress-blue-mesh
+          ports:
+          - port: 15443
+            name: tls
+          - port: 8188
+            name: http-discovery  #note HTTP here
+    additionalIngress:
+      ingress-{{ include "app.othermeshname" . }}:
+        enabled: true
+        routerMode: sni-dnat
+        service:
+          type: LoadBalancer
+          metadata:
+            labels:
+              federation.maistra.io/ingress-for: ingress-{{ include "app.othermeshname" . }}
+          ports:
+          - port: 15443
+            name: tls
+          - port: 8188
+            name: https-discovery
+      ingress-blue-mesh:
+        enabled: true
+        routerMode: sni-dnat
+        service:
+          type: LoadBalancer
+          metadata:
+            labels:
+              federation.maistra.io/ingress-for: ingress-blue-mesh
+          ports:
+          - port: 15443
+            name: tls
+          - port: 8188
+            name: https-discovery      
+  security:
+    trust:
+      domain: {{ include "app.currentmeshname" . }}.local
+{{- end }}
